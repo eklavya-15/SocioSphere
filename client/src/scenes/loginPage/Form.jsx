@@ -79,7 +79,11 @@ const Form = () => {
   };
 
   const login = async (values, onSubmitProps) => {
+<<<<<<< HEAD
     const loggedInResponse = await fetch("/auth/login", {
+=======
+    const loggedInResponse = await fetch("https://socio-sphere-server-iacb17v6h-eklavya-lalwanis-projects.vercel.app/auth/login", {
+>>>>>>> 1e8511989eabc46acadf994e806eb6bc41b1e848
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
