@@ -37,11 +37,11 @@ app.use(cors(
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   }
 ));
-app.use("/assets", express.static(path.join(__dirname, "public/assets")));
+// app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 aws.config.update({
   accessKeyId: process.env.ACCESS_KEY,
   secretAccessKey: process.env.SECRET_ACCESS_KEY,
-  region: 'ap-south-1', // e.g., us-east-1
+  region: 'ap-south-1', 
 });
 
 const s3 = new aws.S3();
