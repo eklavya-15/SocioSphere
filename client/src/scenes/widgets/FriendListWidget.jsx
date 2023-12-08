@@ -13,7 +13,7 @@ const FriendListWidget = ({ userId }) => {
 
   const getFriends = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/users/${userId}/friends`, {
+      const response = await fetch(`/users/${userId}/friends`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
