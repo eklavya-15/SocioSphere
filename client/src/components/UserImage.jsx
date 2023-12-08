@@ -8,7 +8,7 @@ const UserImage = ({ image, size = "60px" }) => {
         width={size}
         height={size}
         alt="user"
-        src={`/assets/${image}`}
+        src={`https://s3.ap-south-1.amazonaws.com/myawsbucket.lalwani/${image}`}
       />
     </Box>
   );
