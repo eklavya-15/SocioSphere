@@ -17,6 +17,7 @@ export const createPost = async (req, res) => {
       description,
       userPicturePath: user.picturePath,
       picturePath:key,
+      videoPath:key,
       likes: {},
       comments: [],
     });
