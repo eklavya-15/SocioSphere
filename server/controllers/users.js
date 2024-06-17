@@ -23,7 +23,7 @@ export const getAllUsers = async (req, res) => {
 export const getUserFriends = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id);
+    const user = await User.findById(id).populate('friends');
 
     const friends = await Promise.all(
       user.friends.map((id) => User.findById(id))
@@ -43,17 +43,16 @@ export const getUserFriends = async (req, res) => {
 export const addRemoveFriend = async (req, res) => {
   try {
     
-    const userId = req.params.id;
-    const friendId = req.params.friendId;
-    const user = await User.findById(id);
+    const { id, friendId } = req.params;
+    const user = await User.findById(id).populate('friends');
     const friend = await User.findById(friendId);
 
     if (user.friends.includes(friendId)) {
       user.friends = user.friends.filter((id) => id !== friendId);
-      friend.friends = friend.friends.filter((id) => id !== userId);
+      friend.friends = friend.friends.filter((id) => id !== id);
     } else {
       user.friends.push(friendId);
-      friend.friends.push(userId);
+      friend.friends.push(id);
     }
     await user.save();
     await friend.save();
