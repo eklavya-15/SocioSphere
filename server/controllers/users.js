@@ -40,36 +40,51 @@ export const getUserFriends = async (req, res) => {
 };
 
 /* UPDATE */
-export const addRemoveFriend = async (req,res) => {
+export const addRemoveFriend = async (req, res) => {
   try {
-    const {id,friendId} = req.params;
+    const { id, friendId } = req.params;
     const user = await User.findById(id);
     const friend = await User.findById(friendId);
-    console.log("hi",friend.friends);
-    console.log("hi",user.friends);
-    if (!user.friends.includes(friendId)) {
-      user.friends.push(friendId)
-      friend.friends.push(id)
-    } else {
-      user.friends = user.friends.filter(id => id !== friendId)
-      friend.friends = friend.friends.filter(friendId => friendId !== id)
+
+    if (!user || !friend) {
+      return res.status(404).json({ message: 'User not found' });
     }
-   
+
+    // Ensure IDs are strings for comparison
+    const userIdStr = id.toString();
+    const friendIdStr = friendId.toString();
+
+    // Check if friend is already in the friends list
+    const isFriend = user.friends.includes(friendIdStr);
+
+    if (isFriend) {
+      // Remove friend from user's friends list
+      user.friends = user.friends.filter(fid => fid.toString() !== friendIdStr);
+      friend.friends = friend.friends.filter(fid => fid.toString() !== userIdStr);
+    } else {
+      // Add friend to user's friends list
+      user.friends.push(friendIdStr);
+      friend.friends.push(userIdStr);
+    }
+
     await user.save();
     await friend.save();
-    console.log("how",friend.friends);
-    console.log("how",user.friends);
+
     const friends = await Promise.all(
-      user.friends.map((id) => User.findById(id))
+      user.friends.map(friendId => User.findById(friendId))
     );
-    const formattedFriends = friends.map(
-      ({ _id, firstName, lastName, occupation, location, picturePath }) => {
-        return { _id, firstName, lastName, occupation, location, picturePath };
-      }
-    );
+
+    const formattedFriends = friends.map(({ _id, firstName, lastName, occupation, location, picturePath }) => ({
+      _id,
+      firstName,
+      lastName,
+      occupation,
+      location,
+      picturePath,
+    }));
 
     res.status(200).json(formattedFriends);
   } catch (err) {
-    res.status(404).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
