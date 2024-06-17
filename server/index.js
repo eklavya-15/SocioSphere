@@ -16,21 +16,31 @@ import { createPost } from "./controllers/posts.js";
 import { verifyToken } from "./middleware/auth.js";
 import aws  from 'aws-sdk';
 import multerS3 from 'multer-s3';
+import messageRoutes from "./routes/messages.js";
 import User from "./models/User.js";
 import Post from "./models/Post.js";
-// import { users, posts } from "./data/index.js";
+import Message from "./models/Message.js"; // Import Message model
 
 /* CONFIGURATIONS */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config();
 const app = express();
+const server = http.createServer(app); // Create HTTP server
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
 app.use(express.json());
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+app.use(express.json());
+app.use(express.urlencoded());
 app.use(cors(
   {
     origin: ['/'],
@@ -77,6 +87,34 @@ app.post("/posts", verifyToken, upload.single("picture"), createPost);
 app.use("/auth", authRoutes); 
 app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
+app.use("/messages", messageRoutes); // Use message routes
+
+/* SOCKET.IO SETUP */
+io.on("connection", (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  socket.on("send_message", (data) => {
+    const { senderId, recipientId, content, timestamp } = data;
+
+    // Save the message to the database
+    const newMessage = new Message({
+      senderId,
+      recipientId,
+      content,
+      timestamp,
+    });
+
+    newMessage.save().then(() => {
+      // Emit the message to the recipient
+      io.emit(`receive_message_${recipientId}`, data);
+      io.emit(`receive_message_${senderId}`, data); // For sender to update their chat
+    });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+});
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 6001;
