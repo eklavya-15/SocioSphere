@@ -7,7 +7,7 @@ const router = express.Router();
 router.get("/:userId/unseen", getUnseenMessages);
 
 // Mark messages as seen and reset unseen count
-router.patch("/:userId/:friendId/mark-seen", markMessagesAsSeen);
+router.patch("/seen/:userId/:friendId/mark-seen", markMessagesAsSeen);
 
 // Fetch messages between two users
 router.get("/:userId/:friendId", getMessages);
