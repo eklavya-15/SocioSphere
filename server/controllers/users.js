@@ -90,7 +90,7 @@ export const addRemoveFriend = async (req, res) => {
   }
 };
 
-export const updateUserDetails = async (req, res) => {
+export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     console.log(id);
@@ -100,12 +100,9 @@ export const updateUserDetails = async (req, res) => {
       return res.status(400).json({ message: 'Invalid user ID' });
     }
 
-    const { firstName, lastName, bio } = req.body;
+    const { firsName, lasName, bi} = req.body;
 
-    // Validate that at least one of the fields is provided
-    if (!firstName && !lastName && !bio) {
-      return res.status(400).json({ message: 'At least one of firstName, lastName, or bio is required' });
-    }
+    
 
     // Find user by ID
     const user = await User.findById(id);
@@ -114,9 +111,9 @@ export const updateUserDetails = async (req, res) => {
     }
 
     // Update user details based on the request body
-    if (firstName) user.firstName = firstName;
-    if (lastName) user.lastName = lastName;
-    if (bio) user.bio = bio;
+    if (firsName) user.firstName = firsName;
+    if (lasName) user.lastName = lasName;
+    if (bi) user.bio = bi;
 
     // Save user and respond with updated user
     await user.save();
