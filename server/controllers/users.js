@@ -1,3 +1,5 @@
+import express from "express";
+import mongoose from "mongoose";
 import User from "../models/User.js";
 
 /* READ */
@@ -26,11 +28,11 @@ export const getUserFriends = async (req, res) => {
     const user = await User.findById(id).populate('friends');
 
     const friends = await Promise.all(
-      user.friends.map((id) => User.findById(id))
+      user.friends.map((friendId) => User.findById(friendId))
     );
-    const formattedFriends = friends&&friends.map(
-      ({ _id, firstName, lastName, occupation, location, picturePath,email,bio }) => {
-        return { _id, firstName, lastName, occupation, location, picturePath,email,bio };
+    const formattedFriends = friends && friends.map(
+      ({ _id, firstName, lastName, bio, picturePath }) => {
+        return { _id, firstName, lastName, bio, picturePath };
       }
     );
     res.status(200).json(formattedFriends);
@@ -74,19 +76,54 @@ export const addRemoveFriend = async (req, res) => {
       user.friends.map(friendId => User.findById(friendId))
     );
 
-    const formattedFriends = friends.map(({ _id, firstName, lastName, occupation, location, picturePath,email,bio }) => ({
+    const formattedFriends = friends.map(({ _id, firstName, lastName, bio, picturePath }) => ({
       _id,
       firstName,
       lastName,
-      occupation,
-      location,
+      bio,
       picturePath,
-      email,
-      bio
     }));
 
     res.status(200).json(formattedFriends);
   } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const updateUserDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(id);
+
+    // Ensure the ID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
+    const { firstName, lastName, bio } = req.body;
+
+    // Validate that at least one of the fields is provided
+    if (!firstName && !lastName && !bio) {
+      return res.status(400).json({ message: 'At least one of firstName, lastName, or bio is required' });
+    }
+
+    // Find user by ID
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update user details based on the request body
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (bio) user.bio = bio;
+
+    // Save user and respond with updated user
+    await user.save();
+    res.status(200).json(user);
+
+  } catch (err) {
+    // Handle errors
     res.status(500).json({ message: err.message });
   }
 };

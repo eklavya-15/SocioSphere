@@ -1,7 +1,7 @@
+import express from "express";
 import Message from "../models/Message.js";
 import SeenMessage from "../models/SeenMessage.js";
 
-// Fetch unseen messages count for each friend
 export const getUnseenMessages = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -12,7 +12,6 @@ export const getUnseenMessages = async (req, res) => {
   }
 };
 
-// Mark messages as seen and reset unseen count
 export const markMessagesAsSeen = async (req, res) => {
   try {
     const { userId, friendId } = req.params;
@@ -27,7 +26,6 @@ export const markMessagesAsSeen = async (req, res) => {
   }
 };
 
-// Fetch messages between two users
 export const getMessages = async (req, res) => {
   try {
     const { userId, friendId } = req.params;
@@ -44,12 +42,10 @@ export const getMessages = async (req, res) => {
   }
 };
 
-// Send a new message
 export const sendMessage = async (req, res) => {
   try {
     const { senderId, recipientId, content, timestamp } = req.body;
 
-    // Save the message to the database
     const newMessage = new Message({
       senderId,
       recipientId,
@@ -59,17 +55,16 @@ export const sendMessage = async (req, res) => {
 
     await newMessage.save();
 
-    // Update unseen messages count for recipient
     const unseenMsg = await SeenMessage.findOneAndUpdate(
       { userId: recipientId, friendId: senderId },
       { $inc: { count: 1 } },
       { upsert: true, new: true }
     );
 
-    // Emit the message to the recipient and sender
     res.status(201).json(newMessage);
   } catch (error) {
     res.status(500).json({ message: error.message });
+    console.log(error);
   }
 };
 
