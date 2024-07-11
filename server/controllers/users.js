@@ -74,13 +74,15 @@ export const addRemoveFriend = async (req, res) => {
       user.friends.map(friendId => User.findById(friendId))
     );
 
-    const formattedFriends = friends.map(({ _id, firstName, lastName, occupation, location, picturePath }) => ({
+    const formattedFriends = friends.map(({ _id, firstName, lastName, occupation, location, picturePath,email,bio }) => ({
       _id,
       firstName,
       lastName,
       occupation,
       location,
       picturePath,
+      email,
+      bio
     }));
 
     res.status(200).json(formattedFriends);
