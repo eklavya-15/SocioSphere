@@ -90,7 +90,7 @@ export const addRemoveFriend = async (req, res) => {
   }
 };
 
-export const updateUser = async (req, res) => {
+export const updateUserDetails = async (req, res) => {
   try {
     const { id } = req.params;
     console.log(id);
